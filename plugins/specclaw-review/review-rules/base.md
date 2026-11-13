@@ -28,6 +28,12 @@ defects left by a fix that patched only the case the reviewer named.
   a sibling change are **majors**. Compare against both parents.
 - **B10 Scope.** Do not ask for features, refactors or renames outside the diff. Anything pre-existing
   and outside the diff is reported with `in_delta: false`.
+- **B11 Access control.** An endpoint or handler that does not check who the caller is, or that they own
+  the resource it reads or changes, is a **blocker**. Access must be denied by default.
+- **B12 Errors leak.** A stack trace, exception message or other internal detail sent to the client is a
+  **major**. Fail closed with a generic error.
+- **B13 Weak password storage.** Home-made crypto, or a password stored with a plain or fast digest (MD5,
+  SHA-1, SHA-256) instead of Argon2id, bcrypt or scrypt, is a **blocker**.
 
 ### Severity calibration
 
