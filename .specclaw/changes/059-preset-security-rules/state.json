@@ -1,6 +1,6 @@
 {
   "change": "059-preset-security-rules",
-  "phase": "build",
+  "phase": "verify",
   "branch": "",
   "size": "bounded",
   "phases": {
