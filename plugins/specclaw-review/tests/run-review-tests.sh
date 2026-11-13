@@ -311,6 +311,18 @@ check "AC-25 severity flagged; suggested block names governance but not ADRs; no
 printf 'presets: []\ngit:\n  base_branch: main\nreview:\n  governance_budget: 10\n' > .specclaw/config.yaml
 check "AC-26 over budget warns; --json is valid JSON" '"$SR" discover | grep -q WARNING && "$SR" discover --json | python3 -c "import json,sys; d=json.load(sys.stdin); assert d[\"over_budget\"] is True"'
 
+
+rules_missing() { local f="$1" id miss=""; shift; for id in "$@"; do grep -q "^- \*\*$id[ *]" "$f" || miss="$miss $id"; done; echo "$miss"; }
+sec_ids() { case "$1" in
+  base) echo "B11 B12 B13" ;; dotnet) echo "DN7 DN8 DN9" ;; python) echo "PY8 PY9 PY10 PY11" ;;
+  node) echo "ND6 ND7 ND8 ND9 ND10" ;; nextjs) echo "NX5 NX6 NX7 NX8" ;; react-spa) echo "RS7 RS8 RS9 RS10" ;; esac; }
+for pk in base dotnet python node nextjs react-spa; do
+  check "Security AC-6 review pack $pk has all its security rules" '[ -z "$(rules_missing "$PLUGIN_DIR/review-rules/$pk.md" $(sec_ids $pk))" ]'
+  for id in $(sec_ids $pk); do
+    sed "/^- \*\*$id[ *]/d" "$PLUGIN_DIR/review-rules/$pk.md" > "$TMP/pack-mutant.md"
+    check "Security AC-7 pack $pk with $id deleted is reported by id" '[ "$(rules_missing "$TMP/pack-mutant.md" $(sec_ids $pk))" = " $id" ]'
+  done
+done
 echo
 [ "$FAILS" -eq 0 ] && echo "All specclaw-review tests passed." || echo "$FAILS failure(s)."
 exit $((FAILS > 0))
